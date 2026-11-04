@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PC Health Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>PC Health Dashboard</h1>
+    <p id="status" class="status">Connecting…</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>CPU</h2>
+        <p class="value" id="cpu-value">…</p>
+        <div class="bar"><div class="fill" id="cpu-bar"></div></div>
+      </article>
+
+      <article class="card">
+        <h2>Memory</h2>
+        <p class="value" id="mem-value">…</p>
+        <div class="bar"><div class="fill" id="mem-bar"></div></div>
+        <p class="detail" id="mem-detail"></p>
+      </article>
+
+      <article class="card">
+        <h2>Disk (/)</h2>
+        <p class="value" id="disk-value">…</p>
+        <div class="bar"><div class="fill" id="disk-bar"></div></div>
+        <p class="detail" id="disk-detail"></p>
+      </article>
+
+      <article class="card">
+        <h2>Uptime</h2>
+        <p class="value" id="uptime-value">…</p>
+      </article>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
