@@ -13,19 +13,33 @@ This project was also my first time using an AI agent (Claude Code) to build a c
 - Only two runtime dependencies (Express and systeminformation), with no front-end framework or build step
 - Listens on localhost only, so nothing is exposed to your network
 
-## Run
+## Install and run
 
-```bash
-sudo dnf install nodejs   # Fedora; needs Node >= 18.15
-npm install
-npm start
-```
+You'll need [Node.js](https://nodejs.org) 18.15 or newer. To install it:
 
-Then open http://localhost:3000.
+Command | OS
+--- | ---
+`sudo dnf install nodejs` | Fedora
+`winget install OpenJS.NodeJS.LTS` | Windows
+
+On Windows, open a new terminal after installing so it can find `node` and `npm`. Any terminal windows opened before installing will not have access to these commands.
+You can verify the install by running `node --version` and `npm --version` in the terminal.
+
+Open a terminal and make sure its working directory is the project's root folder. In the screenshot below, that's `~/Desktop/PC-Health-Dashboard`. Then run:
+
+Then run `npm install`, followed by `npm start`, as shown below:
+
+![Terminal in the project's root folder showing npm install, then npm start reporting the dashboard running at http://localhost:3000](public/images/starting_app.png)
+
+## View the dashboard
+
+Once the app is running, as shown above, open http://localhost:3000 in your browser to watch your metrics live.
+
+![PC Health Dashboard in a browser at localhost:3000 showing CPU, memory, disk, and uptime](public/images/localhost_app.png)
 
 ## Tools and versions
 
-The Node.js row shows the installed version. The package rows show the version ranges declared in `package.json`.
+The Node.js row shows the version I used. The package rows show the version ranges declared in `package.json`.
 
 | Tool | Version | Purpose |
 | --- | --- | --- |
@@ -62,7 +76,7 @@ The Node.js row shows the installed version. The package rows show the version r
 {
   "cpu": { "percent": 12.4 },
   "memory": { "total": 16678203392, "used": 5368709120, "percent": 32.2 },
-  "disk": { "total": 510405042176, "used": 183500000000, "percent": 35.9 },
+  "disk": { "total": 510405042176, "used": 183500000000, "percent": 36 },
   "uptimeSeconds": 93784
 }
 ```
@@ -75,7 +89,7 @@ A few choices that are easy to get wrong with system metrics:
 
 - **CPU** comes from `systeminformation`, which compares successive readings of the cumulative CPU times. The server asks it for a new value once a second on a timer. A single reading can't show current usage, and a timer means the result doesn't change with how many browser tabs are open.
 - **Memory** uses `MemAvailable` from `/proc/meminfo` instead of `os.freemem()`. On Linux, "free" memory ignores disk cache that the kernel gives back on demand, so it makes a healthy machine look nearly full. macOS has the same problem, so there it uses the `available` value from `systeminformation`, refreshed every 2 seconds. Windows uses `os.freemem()`, which already counts that cache as available, and it's also the fallback if the other readings aren't available.
-- **Disk** is calculated the same way `df` does it, so the percentage matches what you see in the terminal.
+- **Disk** is calculated the same way `df` does it, so the percentage matches df on Linux.
 
 Linux is the primary target. I've tested it on Fedora and Windows 11. I added `systeminformation` in the hope of supporting macOS too, but I haven't tested it there yet.
 
