@@ -5,8 +5,10 @@ const metrics = require('./metrics');
 const app = express();
 const PORT = 3000;
 
+// Serve the dashboard page (HTML/CSS/JS) straight from the public folder.
 app.use(express.static(path.join(__dirname, 'public')));
 
+// One endpoint returns every metric, so the browser only needs a single request per refresh.
 app.get('/api/metrics', async (req, res) => {
   try {
     res.json({
@@ -16,6 +18,8 @@ app.get('/api/metrics', async (req, res) => {
       uptimeSeconds: metrics.getUptime(),
     });
   } catch (err) {
+    // Log the real error for us, but send the browser a generic message
+    // so we don't leak system details.
     console.error(err);
     res.status(500).json({ error: 'Failed to read system metrics' });
   }

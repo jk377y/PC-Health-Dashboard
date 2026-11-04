@@ -80,10 +80,12 @@ async function getDisk(path = '/') {
 }
 
 // ---------- Uptime ----------
+// os.uptime() returns fractional seconds; we drop the decimals since the UI only shows d/h/m.
 function getUptime() {
   return Math.floor(os.uptime());
 }
 
+// Round to one decimal place (e.g. 42.37 -> 42.4) so the numbers look tidy in the UI.
 function round(n) {
   return Math.round(n * 10) / 10;
 }
