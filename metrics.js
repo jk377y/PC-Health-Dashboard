@@ -70,11 +70,12 @@ function getMemory() {
 // We use bavail (not bfree) like `df` does, so root-reserved blocks aren't counted as free.
 async function getDisk(path = '/') {
   const s = await fs.promises.statfs(path);
-  const total = s.blocks * s.bsize;
   const available = s.bavail * s.bsize;
-  const used = total - s.bfree * s.bsize;
-  // df computes percent as used / (used + available)
-  const percent = used + available > 0 ? (used / (used + available)) * 100 : 0;
+  const used = (s.blocks - s.bfree) * s.bsize;
+  // Like df, capacity = used + available (excludes root-reserved blocks), so the
+  // percentage and the "X of Y used" text are computed from the same basis.
+  const total = used + available;
+  const percent = total > 0 ? (used / total) * 100 : 0;
   return { total, used, percent: round(percent) };
 }
 

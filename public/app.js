@@ -3,7 +3,7 @@ const POLL_MS = 2000;
 const $ = (id) => document.getElementById(id);
 
 function formatBytes(bytes) {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
   let i = 0;
   while (bytes >= 1024 && i < units.length - 1) {
     bytes /= 1024;
