@@ -71,13 +71,15 @@ Linux is the primary target. The memory reading falls back gracefully elsewhere,
 
 The goal of this project was to learn what it's like to build a real application with an AI agent. I used [Claude Code](https://claude.com/claude-code) inside VS Code. I described what I wanted, reviewed each change it proposed, and steered it as we went.
 
-The screenshot below is from one part of that process. I had added a `CLAUDE.md` file with commenting standards, and asked Claude to review the existing comments and improve them without touching any executable code. Every edit shows up as a side-by-side diff that I can inspect before moving on.
+Beyond generating the application, I used Claude to plan the architecture, troubleshoot implementation issues, and review the code. I also tested the results independently against Fedora's System Monitor, and used the differences I found to correct inaccuracies in the metrics.
+
+The screenshot below is from one part of that process. I had given Claude a set of commenting standards in a project instruction file, and asked it to review the existing comments and improve them without touching any executable code. Every edit shows up as a side-by-side diff that I can inspect before moving on.
 
 ![Claude Code in VS Code showing side-by-side diffs of comment-only edits to app.js](public/images/claude_workflow.png)
 
 A few things I learned along the way:
 
-- A `CLAUDE.md` file is a good place to put project rules (like commenting style) so you don't have to repeat them.
+- An instruction file is a good place to put project rules (like commenting style) so you don't have to repeat them. I started with a `CLAUDE.md`, then renamed it to `CLAUDE.local.md` and excluded it from Git, because it holds my personal preferences rather than anything the project needs. That's why you won't find it in this repository.
 - Reviewing the diff after each step keeps you in control, and it's how I confirmed the comment-only pass changed no code.
 - Telling the agent not to commit or push until I say so keeps Git history under my control.
 
@@ -89,4 +91,4 @@ A few things I learned along the way:
 ## *License*
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 <br>Copyright (c) 2026 James Kelly
-<br>Information on this license can be found at: (https://opensource.org/licenses/MIT)
+<br>See the [LICENSE](LICENSE) file for the full text.
