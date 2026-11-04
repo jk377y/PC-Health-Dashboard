@@ -1,5 +1,6 @@
 const os = require('os');
 const fs = require('fs');
+const si = require('systeminformation');
 
 // ---------- CPU ----------
 // os.cpus() reports *cumulative* time (since boot) each core has spent idle/busy.
@@ -9,33 +10,22 @@ const fs = require('fs');
 // We take the readings on a timer (not per request) so that:
 //   - the result doesn't depend on how often the browser polls, and
 //   - several open tabs can't shrink the sampling window and make it noisy.
-function readCpuTimes() {
-  let idle = 0;
-  let total = 0;
-  for (const cpu of os.cpus()) {
-    for (const t of Object.values(cpu.times)) total += t;
-    idle += cpu.times.idle;
+// ---------- CPU ----------
+let cpuPercent = null;
+
+setInterval(async () => {
+  try {
+    const data = await si.currentLoad();
+    if (Number.isFinite(data.currentLoad)) {
+      cpuPercent = round(data.currentLoad);
+    }
+  } catch (err) {
+    console.error('CPU measurement failed:', err);
   }
-  return { idle, total };
-}
-
-let previous = readCpuTimes(); // baseline taken at startup
-let cpuPercent = null;         // null = "no reading yet" (first second after start)
-
-setInterval(() => {
-  const current = readCpuTimes();
-  const idleDelta = current.idle - previous.idle;
-  const totalDelta = current.total - previous.total;
-  previous = current;
-
-  // If no time elapsed (totalDelta 0) keep the last value instead of dividing by 0.
-  if (totalDelta > 0) {
-    cpuPercent = (1 - idleDelta / totalDelta) * 100;
-  }
-}, 1000).unref(); // unref: this timer alone won't keep the process alive
+}, 1000).unref();
 
 function getCpuUsage() {
-  return { percent: cpuPercent === null ? null : round(cpuPercent) };
+  return { percent: cpuPercent };
 }
 
 // ---------- Memory ----------
