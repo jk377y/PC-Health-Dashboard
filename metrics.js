@@ -3,9 +3,9 @@ const fs = require('fs');
 const si = require('systeminformation');
 
 // ---------- CPU ----------
-// os.cpus() reports *cumulative* time (since boot) each core has spent idle/busy.
-// A single reading therefore can't tell us "current usage". We need two readings
-// and compare them: usage = 1 - (idle time elapsed / total time elapsed).
+// CPU time is reported as a *cumulative* total (since boot) of each core's idle/busy
+// time, so a single reading can't tell us "current usage". si.currentLoad() compares
+// each reading with the previous one: usage = busy time elapsed / total time elapsed.
 //
 // We take the readings on a timer (not per request) so that:
 //   - the result doesn't depend on how often the browser polls, and
@@ -36,7 +36,28 @@ function getCpuUsage() {
 //   used    = total - available
 //   percent = used / total * 100
 // This matches the "used" idea in `free -h` (its "available" column).
+//
+// macOS has the same cache problem but no /proc/meminfo, so there we use si.mem().
+// It runs external commands, which is why it's on a timer (not per request), and
+// why Linux and Windows skip it: on Windows it would start PowerShell every time
+// just to return os.freemem(), which already counts that cache as available.
+let macAvailable = null;
+
+async function sampleMacMemory() {
+  try {
+    macAvailable = (await si.mem()).available;
+  } catch (err) {
+    console.error('Memory measurement failed:', err);
+  }
+}
+
+if (process.platform === 'darwin') {
+  sampleMacMemory();
+  setInterval(sampleMacMemory, 2000).unref();
+}
+
 function readMemAvailable() {
+  if (macAvailable !== null) return macAvailable;
   try {
     const text = fs.readFileSync('/proc/meminfo', 'utf8');
     const match = text.match(/^MemAvailable:\s+(\d+)\s+kB/m);

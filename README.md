@@ -10,7 +10,7 @@ This project was also my first time using an AI agent (Claude Code) to build a c
 - Live CPU, memory, and disk usage, refreshed every 2 seconds
 - System uptime shown in days, hours, and minutes
 - Progress bars that turn orange at 70% and red at 90%
-- Only one runtime dependency (Express), with no front-end framework or build step
+- Only two runtime dependencies (Express and systeminformation), with no front-end framework or build step
 - Listens on localhost only, so nothing is exposed to your network
 
 ## Run
@@ -23,9 +23,21 @@ npm start
 
 Then open http://localhost:3000.
 
+## Tools and versions
+
+The Node.js row shows the installed version. The package rows show the version ranges declared in `package.json`.
+
+| Tool | Version | Purpose |
+| --- | --- | --- |
+| [Node.js](https://nodejs.org) | `v26.4.0` | JavaScript runtime |
+| [Express](https://expressjs.com) | `^4.21.2` | Web server and the `/api/metrics` route |
+| [systeminformation](https://systeminformation.io) | `^5.33.19` | CPU usage, plus memory on macOS |
+
+![VS Code showing the dependencies in package.json and the output of node --version](public/images/tool_versions.png)
+
 ## How it works
 
-- `metrics.js` reads system stats using Node's built-in `os`/`fs` modules.
+- `metrics.js` reads CPU usage (and memory on macOS) with the `systeminformation` package, and everything else with Node's built-in `os`/`fs` modules.
 - `server.js` serves `public/` and exposes `GET /api/metrics`.
 - `public/app.js` polls that endpoint every 2 seconds and updates the page.
 
@@ -61,11 +73,11 @@ Byte values are in bytes. `cpu.percent` is `null` for the first second after the
 
 A few choices that are easy to get wrong with system metrics:
 
-- **CPU** is measured by comparing two readings of the cumulative CPU times, taken once a second on a timer. A single reading can't show current usage, and a timer means the result doesn't change with how many browser tabs are open.
-- **Memory** uses `MemAvailable` from `/proc/meminfo` instead of `os.freemem()`. On Linux, "free" memory ignores disk cache that the kernel gives back on demand, so it makes a healthy machine look nearly full. If `/proc/meminfo` can't be read, it falls back to `os.freemem()`.
+- **CPU** comes from `systeminformation`, which compares successive readings of the cumulative CPU times. The server asks it for a new value once a second on a timer. A single reading can't show current usage, and a timer means the result doesn't change with how many browser tabs are open.
+- **Memory** uses `MemAvailable` from `/proc/meminfo` instead of `os.freemem()`. On Linux, "free" memory ignores disk cache that the kernel gives back on demand, so it makes a healthy machine look nearly full. macOS has the same problem, so there it uses the `available` value from `systeminformation`, refreshed every 2 seconds. Windows uses `os.freemem()`, which already counts that cache as available, and it's also the fallback if the other readings aren't available.
 - **Disk** is calculated the same way `df` does it, so the percentage matches what you see in the terminal.
 
-Linux is the primary target. The memory reading falls back gracefully elsewhere, but I've only tested on Fedora.
+Linux is the primary target. I've tested it on Fedora and Windows 11. I added `systeminformation` in the hope of supporting macOS too, but I haven't tested it there yet.
 
 ## Built with an AI agent
 
