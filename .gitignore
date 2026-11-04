@@ -26,3 +26,6 @@ yarn-error.log*
 
 # --- IDEs and Text Editors ---
 .vscode/
+
+# --- Claude Code Instructions
+CLAUDE.local.md
